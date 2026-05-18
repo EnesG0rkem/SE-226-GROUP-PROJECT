@@ -1,63 +1,52 @@
-import google.generativeai as genai
 import json
+from google import genai
+from google.genai import types
+from pydantic import BaseModel, Field
+from typing import List
 
 
-genai.configure(api_key="API_KEY")
+client = genai.Client(api_key="APIAIzaSyAlBnB6YWVouuQZV5iK7k6GUAnR5ULCJjk_KEY")
 
-model = genai.GenerativeModel("gemini-1.5-flash")
-
+class AlbumData(BaseModel):
+    album_name: str = Field(description="The name of the fictional album")
+    artist_name: str = Field(description="The name of the fictional artist")
+    year: str = Field(description="The release year based on the given era")
+    label: str = Field(description="Fictional record label name")
+    mood_description: str = Field(description="Overall mood of the album")
+    cover_prompt: str = Field(description="Visual description for AI image generation (lighting, atmosphere)")
+    tags: List[str] = Field(description="3 to 6 lowercase Last.fm style tags")
 
 def generate_album_data(journal, genre, era, track_count):
+    
+    system_prompt = "You are a professional music curator AI. Your task is to create a fictional music album based on user input."
 
-    generation_config = {
-        "response_mime_type": "application/json"
-    }
-
-    prompt = f"""
-You are a professional music curator AI.
-
-Your task is to create a fictional music album based on user input.
-
-RULES:
-- Return ONLY valid JSON
-- No explanation, no markdown, no extra text
-- Tags must be lowercase and realistic Last.fm style tags
-
+    user_prompt = f"""
 INPUT:
 Journal: {journal}
 Genre: {genre}
 Era: {era}
 Track Count: {track_count}
-
-OUTPUT FORMAT:
-{{
-    "album_name": "string",
-    "artist_name": "string",
-    "year": "string",
-    "label": "string",
-    "mood_description": "string",
-    "cover_prompt": "visual description for AI image generation",
-    "tags": ["tag1", "tag2", "tag3"]
-}}
 """
 
+    config = types.GenerateContentConfig(
+        system_instruction=system_prompt,
+        response_mime_type="application/json",
+        response_schema=AlbumData,
+        temperature=0.7 
+    )
+
     try:
-        response = model.generate_content(
-            prompt,
-            generation_config=generation_config
+        
+        response = client.models.generate_content(
+            model='gemini-1.5-flash',
+            contents=user_prompt,
+            config=config,
         )
 
         
         data = json.loads(response.text)
-
         return data
 
-    except json.JSONDecodeError:
-        print("JSON parse error from Gemini output")
-        print("RAW OUTPUT:")
-        print(response.text)
-        return None
-
     except Exception as e:
-        print("Gemini API error:", str(e))
+        print("❌ Gemini API veya Parse Hatası:", str(e))
         return None
