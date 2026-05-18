@@ -5,7 +5,7 @@ from pydantic import BaseModel, Field
 from typing import List
 
 
-client = genai.Client(api_key="APIAIzaSyAlBnB6YWVouuQZV5iK7k6GUAnR5ULCJjk_KEY")
+client = genai.Client(api_key="API_KEY")
 
 class AlbumData(BaseModel):
     album_name: str = Field(description="The name of the fictional album")
