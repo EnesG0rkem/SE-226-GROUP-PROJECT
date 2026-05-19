@@ -1,5 +1,8 @@
 import platform
 from tkinter import *
+import geminiAI
+import Lastfm
+import Pollunation
 
 if platform.system() == 'Darwin':  # macOS ise
     try:
