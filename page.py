@@ -139,7 +139,90 @@ generate_button.pack(padx=10,
 right_panel = Frame(main_frame)
 main_frame.add(right_panel)
 
-l1 = Label(right_panel, text="deneme", font="Ariel 50 bold", )
-l1.pack(anchor="w")
+right_panel.config(bg="#121212")
+
+tracklist_title = Label(
+    right_panel,
+    text="Generated Tracklist",
+    font=("Arial", 18, "bold"),
+    fg="white",
+    bg="#121212"
+)
+tracklist_title.pack(anchor="w", padx=20, pady=(20, 10))
+
+tracks_container = Frame(right_panel, bg="#121212")
+tracks_container.pack(fill="both", expand=True, padx=20)
 #endregion
+def open_track_url(url):
+    if url:
+        webbrowser.open(url)
+
+
+def clear_tracks():
+    for widget in tracks_container.winfo_children():
+        widget.destroy()
+
+
+def display_tracks(tracks):
+    clear_tracks()
+
+    for index, track in enumerate(tracks, start=1):
+        row = Frame(tracks_container, bg="#181818")
+        row.pack(fill="x", pady=4)
+
+        number_label = Label(row, text=str(index), width=3, fg="#B3B3B3", bg="#181818")
+        number_label.pack(side=LEFT, padx=8)
+
+        info_frame = Frame(row, bg="#181818")
+        info_frame.pack(side=LEFT, fill="x", expand=True)
+
+        song_label = Label(
+            info_frame,
+            text=track["name"],
+            fg="white",
+            bg="#181818",
+            font=("Arial", 11, "bold")
+        )
+        song_label.pack(anchor="w")
+
+        artist_label = Label(
+            info_frame,
+            text=track["artist"],
+            fg="#B3B3B3",
+            bg="#181818",
+            font=("Arial", 10)
+        )
+        artist_label.pack(anchor="w")
+
+        listen_button = Button(
+            row,
+            text="Listen",
+            bg=spotify_green,
+            activebackground=button_pressed,
+            command=lambda url=track["url"]: open_track_url(url)
+        )
+  listen_button.pack(side=RIGHT, padx=8)
+
+test_tracks = [
+    {
+        "name": "crying lightning",
+        "artist": "Arctic Monkeys",
+        "url": "https://www.last.fm/music/Arctic+Monkeys"
+    },
+    {
+        "name": "blond",
+        "artist": "Frank Ocean",
+        "url": "https://www.last.fm/music/Frank+Ocean"
+    },
+    {
+        "name": "hileli",
+        "artist": "Manifest",
+        "url": "https://www.last.fm/music/Manifest"
+    }
+]
+
+display_tracks(test_tracks)
+
 main_page.mainloop()
+        
+
