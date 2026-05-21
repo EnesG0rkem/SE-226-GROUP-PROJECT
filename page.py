@@ -201,7 +201,7 @@ def display_tracks(tracks):
             activebackground=button_pressed,
             command=lambda url=track["url"]: open_track_url(url)
         )
-  listen_button.pack(side=RIGHT, padx=8)
+            listen_button.pack(side=RIGHT, padx=8)
 
 test_tracks = [
     {
