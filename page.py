@@ -3,6 +3,12 @@ from tkinter import *
 import geminiAI
 import Lastfm
 import Pollunation
+import trackUtils
+import genreStyles
+import saveUtils
+import webbrowser
+from PIL import ImageTk
+
 
 if platform.system() == 'Darwin':  # macOS ise
     try:
