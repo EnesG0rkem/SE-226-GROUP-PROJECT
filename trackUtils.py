@@ -22,7 +22,7 @@ def remove_duplicate_tracks(track_list):
 
     for track in track_list:
         track_name = track.get("name", "").strip()
-        artist_name = track.get("artist", {}).get("name", "").strip()
+        artist_name = track.get("artist", "").strip()
         url = track.get("url", "")
 
         if not track_name or not artist_name:

@@ -8,6 +8,7 @@ import genreStyles
 import saveUtils
 import webbrowser
 from PIL import ImageTk
+import threading
 
 
 if platform.system() == 'Darwin':  # macOS ise
@@ -138,8 +139,31 @@ generate_button.pack(padx=10,
 #region Right panel ----------------------------------------------------------------------------------------
 right_panel = Frame(main_frame)
 main_frame.add(right_panel)
-
 right_panel.config(bg="#121212")
+
+# Cover image label
+cover_label = Label(right_panel, bg="#121212")
+cover_label.pack(pady=(20, 5))
+
+# Album name
+album_title_label = Label(
+    right_panel,
+    text="Album Name",
+    font=("Arial", 16, "bold"),
+    fg="white",
+    bg="#121212"
+)
+album_title_label.pack()
+
+# Artist name
+artist_label_display = Label(
+    right_panel,
+    text="Artist Name",
+    font=("Arial", 12),
+    fg="#B3B3B3",
+    bg="#121212"
+)
+artist_label_display.pack()
 
 tracklist_title = Label(
     right_panel,
@@ -222,6 +246,27 @@ test_tracks = [
 ]
 
 display_tracks(test_tracks)
+
+current_cover_image = None  # keep a reference so it's not garbage collected
+
+def finish_generation(album_data, tracks, cover_image):
+    global current_cover_image
+        
+    # 1. Show cover image
+    img_resized = cover_image.resize((250, 250))
+    current_cover_image = ImageTk.PhotoImage(img_resized)
+    cover_label.config(image=current_cover_image)
+        
+    # 2. Show album metadata
+    album_title_label.config(text=album_data["album_name"])
+    artist_label_display.config(text=album_data["artist_name"])
+        
+    # 3. Show tracklist
+    display_tracks(tracks)
+        
+    # 4. Re-enable button
+    generate_button.config(state=NORMAL)
+    status_label.config(text="Done!")
         
 
 def on_generate():
@@ -232,20 +277,24 @@ def on_generate():
     track_count = count_box.get()
 
     status_label.config(text="Gemini is thinking...")
+    generate_button.config(state=DISABLED)
 
-    result = geminiAI.generate_album_data(
-        journal,
-        genre,
-        era,
-        track_count
-    )
-
-    if not result:
-        status_label.config(text="Gemini failed")
-        return
-
-    status_label.config(text="Album generated!")
-    print(result)
+    def background_task():
+        result = geminiAI.generate_album_data(journal, genre, era, track_count)
+        if not result:
+            main_page.after(0, lambda: status_label.config(text="Gemini failed"))
+            main_page.after(0, lambda: generate_button.config(state=NORMAL))
+            return
+        
+        main_page.after(0, lambda: status_label.config(text="Fetching tracks..."))
+        tracks = trackUtils.collect_tracks_from_tags(result["tags"], track_count)
+        
+        main_page.after(0, lambda: status_label.config(text="Generating cover..."))
+        cover_image = Pollunation.generate_cover(result["cover_prompt"])
+        
+        main_page.after(0, lambda: finish_generation(result, tracks, cover_image))
+    
+    threading.Thread(target=background_task, daemon=True).start()
 
 generate_button.config(command=on_generate)
 

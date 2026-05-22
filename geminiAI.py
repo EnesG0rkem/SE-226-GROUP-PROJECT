@@ -2,7 +2,7 @@ from google import genai
 import json
 import re
 
-client = genai.Client(api_key="AIzaSyDD8CJVwHky9Ldg3BYy75UYi9Vzo_SWrII")
+client = genai.Client(api_key="AIzaSyDlLUSPgvjRl6JyNsgY_OXDtrLpWQXsdN8")
 
 
 def clean_json(text):
@@ -30,7 +30,7 @@ mood_description, cover_prompt, tags
 
     try:
         response = client.models.generate_content(
-            model="gemini-1.5-flash",
+            model="gemini-2.0-flash",
             contents=prompt
         )
 
