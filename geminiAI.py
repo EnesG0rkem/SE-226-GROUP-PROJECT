@@ -1,52 +1,41 @@
-import json
 from google import genai
-from google.genai import types
-from pydantic import BaseModel, Field
-from typing import List
+import json
+import re
+
+client = genai.Client(api_key="AIzaSyDD8CJVwHky9Ldg3BYy75UYi9Vzo_SWrII")
 
 
-client = genai.Client(api_key="API_KEY")
+def clean_json(text):
+    text = text.strip()
+    if text.startswith("```"):
+        text = re.sub(r"```(json)?", "", text)
+        text = text.replace("```", "").strip()
+    return json.loads(text)
 
-class AlbumData(BaseModel):
-    album_name: str = Field(description="The name of the fictional album")
-    artist_name: str = Field(description="The name of the fictional artist")
-    year: str = Field(description="The release year based on the given era")
-    label: str = Field(description="Fictional record label name")
-    mood_description: str = Field(description="Overall mood of the album")
-    cover_prompt: str = Field(description="Visual description for AI image generation (lighting, atmosphere)")
-    tags: List[str] = Field(description="3 to 6 lowercase Last.fm style tags")
 
 def generate_album_data(journal, genre, era, track_count):
-    
-    system_prompt = "You are a professional music curator AI. Your task is to create a fictional music album based on user input."
 
-    user_prompt = f"""
-INPUT:
+    prompt = f"""
+Return ONLY JSON:
+
 Journal: {journal}
 Genre: {genre}
 Era: {era}
 Track Count: {track_count}
+
+Fields:
+album_name, artist_name, year, label,
+mood_description, cover_prompt, tags
 """
 
-    config = types.GenerateContentConfig(
-        system_instruction=system_prompt,
-        response_mime_type="application/json",
-        response_schema=AlbumData,
-        temperature=0.7 
-    )
-
     try:
-        
         response = client.models.generate_content(
-            model='gemini-1.5-flash',
-            contents=user_prompt,
-            config=config,
+            model="gemini-1.5-flash",
+            contents=prompt
         )
 
-        
-        data = json.loads(response.text)
-        return data
+        return clean_json(response.text)
 
     except Exception as e:
-        print("❌ Gemini API veya Parse Hatası:", str(e))
+        print("Gemini error:", e)
         return None

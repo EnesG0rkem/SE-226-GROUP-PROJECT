@@ -9,7 +9,7 @@ def collect_tracks_from_tags(tags, track_count):
     for tag in tags:
         try:
             tracks = Lastfm.fetch_tracks_by_tag(tag, limit=track_count)
-            all_tracks.extend(tracks)
+            all_tracks.extend(normalize_lastfm_tracks(tracks))
         except Exception as e:
             print(f"Last.fm error for tag '{tag}':", e)
 
@@ -39,3 +39,16 @@ def remove_duplicate_tracks(track_list):
             })
 
     return unique_tracks
+
+
+def normalize_lastfm_tracks(tracks):
+    normalized = []
+
+    for t in tracks:
+        normalized.append({
+            "name": t.get("name", ""),
+            "artist": t.get("artist", {}).get("name", ""),
+            "url": t.get("url", "")
+        })
+
+    return normalized

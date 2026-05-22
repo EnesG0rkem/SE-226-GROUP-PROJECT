@@ -126,8 +126,8 @@ generate_button = Button(left_panel,
                          font="Ariel 30 bold",
                          bg=spotify_green,
                          activebackground=button_pressed,
-                         activeforeground='black',
-                         focuscolor='')
+                         activeforeground='black')
+# removed focuscolor=''
 generate_button.pack(padx=10,
                      pady=10,
                      side=TOP, fill='x')
@@ -201,7 +201,7 @@ def display_tracks(tracks):
             activebackground=button_pressed,
             command=lambda url=track["url"]: open_track_url(url)
         )
-            listen_button.pack(side=RIGHT, padx=8)
+        listen_button.pack(side=RIGHT, padx=8)
 
 test_tracks = [
     {
@@ -222,7 +222,35 @@ test_tracks = [
 ]
 
 display_tracks(test_tracks)
-
-main_page.mainloop()
         
 
+def on_generate():
+
+    journal = input_area.get("1.0", END).strip()
+    genre = opt_genre.get()
+    era = opt_era.get()
+    track_count = count_box.get()
+
+    status_label.config(text="Gemini is thinking...")
+
+    result = geminiAI.generate_album_data(
+        journal,
+        genre,
+        era,
+        track_count
+    )
+
+    if not result:
+        status_label.config(text="Gemini failed")
+        return
+
+    status_label.config(text="Album generated!")
+    print(result)
+
+generate_button.config(command=on_generate)
+
+status_label = Label(left_panel, text="", fg="white", bg="#1C1C1C")
+status_label.pack()
+
+
+main_page.mainloop()
