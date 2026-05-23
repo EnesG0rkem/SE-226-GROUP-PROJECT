@@ -1,4 +1,5 @@
 import Lastfm
+import historyUtils
 
 
 def collect_tracks_from_tags(tags, track_count):
@@ -11,7 +12,38 @@ def collect_tracks_from_tags(tags, track_count):
         except Exception as e:
             print(f"Last.fm error for tag '{tag}':", e)
 
-    return remove_duplicate_tracks(all_tracks)[:track_count]
+    new_tracks = remove_duplicate_tracks(all_tracks)
+
+    history_tracks = []
+
+    for item in historyUtils.load_history():
+
+        if "track" in item:
+            track = item["track"]
+            if "name" in track and "artist" in track and "url" in track:
+                history_tracks.append({
+                    "name": track["name"],
+                    "artist": track["artist"],
+                    "url": track["url"]
+                })
+
+        elif "name" in item and "artist" in item and "url" in item:
+            history_tracks.append({
+                "name": item["name"],
+                "artist": item["artist"],
+                "url": item["url"]
+            })
+
+    import random
+    random.shuffle(history_tracks)
+
+    history_count = int(track_count * 0.3)
+
+    selected_history = history_tracks[:history_count]
+
+    combined_tracks = selected_history + new_tracks
+
+    return remove_duplicate_tracks(combined_tracks)[:track_count]
 
 
 def remove_duplicate_tracks(track_list):
@@ -50,12 +82,3 @@ def normalize_lastfm_tracks(tracks):
         })
 
     return normalized
-
-if __name__ == "__main__":
-    tags = ["dream pop", "indie pop", "melancholy"]
-
-    tracks = collect_tracks_from_tags(tags, 8)
-
-    for track in tracks:
-        print(track["name"], "-", track["artist"])
-        print(track["url"])

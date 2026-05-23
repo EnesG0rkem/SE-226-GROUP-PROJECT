@@ -3,6 +3,7 @@ from tkinter import *
 import geminiAI
 import Lastfm
 import Pollunation
+import historyUtils
 import trackUtils
 import genreStyles
 import saveUtils
@@ -115,7 +116,7 @@ era_box.pack(anchor='n')
 #region--- Count 
 count_label = Label(count_frame, text="Track Count", foreground = spotify_green)
 count_label.pack(anchor='e')
-count_box = Spinbox(count_frame, from_ = 0, to = 10, width= 7)
+count_box = Spinbox(count_frame, from_ = 6, to = 14, width= 7)
 count_box.pack(anchor='e')
 #endregion
 
@@ -175,12 +176,44 @@ tracklist_title = Label(
 )
 tracklist_title.pack(anchor="w", padx=20, pady=(20, 10))
 
-tracks_container = Frame(right_panel, bg="#121212")
-tracks_container.pack(fill="both", expand=True, padx=20)
+tracks_frame_wrapper = Frame(right_panel, bg="#121212")
+tracks_frame_wrapper.pack(fill="both", expand=True, padx=20)
+
+tracks_canvas = Canvas(tracks_frame_wrapper, bg="#121212", highlightthickness=0)
+tracks_canvas.pack(side=LEFT, fill="both", expand=True)
+
+tracks_scrollbar = Scrollbar(
+    tracks_frame_wrapper,
+    orient="vertical",
+    command=tracks_canvas.yview
+)
+tracks_scrollbar.pack(side=RIGHT, fill="y")
+
+tracks_container = Frame(tracks_canvas, bg="#121212")
+
+tracks_container.bind(
+    "<Configure>",
+    lambda e: tracks_canvas.configure(scrollregion=tracks_canvas.bbox("all"))
+)
+
+tracks_canvas.create_window((0, 0), window=tracks_container, anchor="nw")
+
+tracks_canvas.configure(yscrollcommand=tracks_scrollbar.set)
+
+
+def on_mousewheel(event):
+    tracks_canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+
+
+tracks_canvas.bind_all("<MouseWheel>", on_mousewheel)
+
 #endregion
-def open_track_url(url):
-    if url:
-        webbrowser.open(url)
+def open_track_url(track, journal, genre):
+
+    historyUtils.save_track(track, journal, genre)
+
+    if track["url"]:
+        webbrowser.open(track["url"])
 
 
 def clear_tracks():
@@ -224,7 +257,7 @@ def display_tracks(tracks):
             text="Listen",
             bg=spotify_green,
             activebackground=button_pressed,
-            command=lambda url=track["url"]: open_track_url(url)
+            command=lambda t=track: open_track_url(t, current_journal, current_genre)
         )
         listen_button.pack(side=RIGHT, padx=8)
 
@@ -249,6 +282,8 @@ test_tracks = [
 display_tracks(test_tracks)
 
 current_cover_image = None  # keep a reference so it's not garbage collected
+current_journal = ""
+current_genre = ""
 
 current_cover_image = None
 current_album_data = None
@@ -311,29 +346,41 @@ def save_album():
         
 
 def on_generate():
+    global current_journal
+    global current_genre
 
     journal = input_area.get("1.0", END).strip()
     genre = opt_genre.get()
     era = opt_era.get()
     track_count = int(count_box.get())
 
+    current_journal = journal
+    current_genre = genre
+    
     status_label.config(text="Gemini is thinking...")
     generate_button.config(state=DISABLED)
 
     def background_task():
-        result = geminiAI.generate_album_data(journal, genre, era, track_count)
-        if not result:
-            main_page.after(0, lambda: status_label.config(text="Gemini failed"))
+        try:
+            result = geminiAI.generate_album_data(journal, genre, era, track_count)
+
+            if not result:
+                main_page.after(0, lambda: status_label.config(text="Gemini failed"))
+                main_page.after(0, lambda: generate_button.config(state=NORMAL))
+                return
+        
+            main_page.after(0, lambda: status_label.config(text="Fetching tracks..."))
+            tracks = trackUtils.collect_tracks_from_tags(result["lastfm_tags"], track_count)
+        
+            main_page.after(0, lambda: status_label.config(text="Generating cover..."))
+            cover_image = Pollunation.generate_cover(result["cover_prompt"])
+        
+            main_page.after(0, lambda: finish_generation(result, tracks, cover_image))
+
+        except Exception as e:
+            print("Generation error:", e)
+            main_page.after(0, lambda: status_label.config(text="Something went wrong"))
             main_page.after(0, lambda: generate_button.config(state=NORMAL))
-            return
-        
-        main_page.after(0, lambda: status_label.config(text="Fetching tracks..."))
-        tracks = trackUtils.collect_tracks_from_tags(result["lastfm_tags"], track_count)
-        
-        main_page.after(0, lambda: status_label.config(text="Generating cover..."))
-        cover_image = Pollunation.generate_cover(result["cover_prompt"])
-        
-        main_page.after(0, lambda: finish_generation(result, tracks, cover_image))
     
     threading.Thread(target=background_task, daemon=True).start()
 
