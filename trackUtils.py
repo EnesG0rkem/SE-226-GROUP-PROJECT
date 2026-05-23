@@ -1,5 +1,3 @@
-
-
 import Lastfm
 
 
@@ -52,3 +50,12 @@ def normalize_lastfm_tracks(tracks):
         })
 
     return normalized
+
+if __name__ == "__main__":
+    tags = ["dream pop", "indie pop", "melancholy"]
+
+    tracks = collect_tracks_from_tags(tags, 8)
+
+    for track in tracks:
+        print(track["name"], "-", track["artist"])
+        print(track["url"])

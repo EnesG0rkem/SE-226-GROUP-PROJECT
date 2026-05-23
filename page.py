@@ -9,6 +9,7 @@ import saveUtils
 import webbrowser
 from PIL import ImageTk
 import threading
+from tkinter import filedialog
 
 
 if platform.system() == 'Darwin':  # macOS ise
@@ -249,8 +250,20 @@ display_tracks(test_tracks)
 
 current_cover_image = None  # keep a reference so it's not garbage collected
 
+current_cover_image = None
+current_album_data = None
+current_tracks = None
+current_cover = None
+
 def finish_generation(album_data, tracks, cover_image):
     global current_cover_image
+    global current_album_data
+    global current_tracks
+    global current_cover
+
+    current_album_data = album_data
+    current_tracks = tracks
+    current_cover = cover_image
         
     # 1. Show cover image
     img_resized = cover_image.resize((250, 250))
@@ -267,6 +280,34 @@ def finish_generation(album_data, tracks, cover_image):
     # 4. Re-enable button
     generate_button.config(state=NORMAL)
     status_label.config(text="Done!")
+
+def save_album():
+
+    global current_album_data
+    global current_tracks
+    global current_cover
+
+    if not current_album_data:
+        status_label.config(text="Nothing to save")
+        return
+
+    folder = filedialog.askdirectory()
+
+    if not folder:
+        return
+
+    saveUtils.save_album_json(
+        folder,
+        current_album_data,
+        current_tracks
+    )
+
+    saveUtils.save_cover_png(
+        folder,
+        current_cover
+    )
+
+    status_label.config(text="Album saved!")
         
 
 def on_generate():
@@ -274,7 +315,7 @@ def on_generate():
     journal = input_area.get("1.0", END).strip()
     genre = opt_genre.get()
     era = opt_era.get()
-    track_count = count_box.get()
+    track_count = int(count_box.get())
 
     status_label.config(text="Gemini is thinking...")
     generate_button.config(state=DISABLED)
@@ -287,7 +328,7 @@ def on_generate():
             return
         
         main_page.after(0, lambda: status_label.config(text="Fetching tracks..."))
-        tracks = trackUtils.collect_tracks_from_tags(result["tags"], track_count)
+        tracks = trackUtils.collect_tracks_from_tags(result["lastfm_tags"], track_count)
         
         main_page.after(0, lambda: status_label.config(text="Generating cover..."))
         cover_image = Pollunation.generate_cover(result["cover_prompt"])
@@ -297,6 +338,21 @@ def on_generate():
     threading.Thread(target=background_task, daemon=True).start()
 
 generate_button.config(command=on_generate)
+
+save_button = Button(
+    left_panel,
+    text="Save Album",
+    font="Ariel 18 bold",
+    bg="#444444",
+    fg="white",
+    command=save_album
+)
+
+save_button.pack(
+    padx=10,
+    pady=5,
+    fill='x'
+)
 
 status_label = Label(left_panel, text="", fg="white", bg="#1C1C1C")
 status_label.pack()
