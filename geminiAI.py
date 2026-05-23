@@ -1,39 +1,49 @@
-from google import genai
+import google.generativeai as genai
 import json
 import re
 
-client = genai.Client(api_key="AIzaSyDlLUSPgvjRl6JyNsgY_OXDtrLpWQXsdN8")
+GEMINI_API_KEY = "AIzaSyAs5uU3AUltNOi7tsRvqWKcmwCiXsWgIUg"
+
+genai.configure(api_key=GEMINI_API_KEY)
+
+model = genai.GenerativeModel("gemini-2.5-flash")
 
 
 def clean_json(text):
     text = text.strip()
+
     if text.startswith("```"):
-        text = re.sub(r"```(json)?", "", text)
-        text = text.replace("```", "").strip()
+        text = re.sub(r"^```json", "", text)
+        text = re.sub(r"^```", "", text)
+        text = re.sub(r"```$", "", text)
+        text = text.strip()
+
     return json.loads(text)
 
 
 def generate_album_data(journal, genre, era, track_count):
 
     prompt = f"""
-Return ONLY JSON:
+Return ONLY valid JSON.
 
-Journal: {journal}
-Genre: {genre}
-Era: {era}
+{{
+  "album_name": "string",
+  "artist_name": "string",
+  "year": 2010,
+  "label": "string",
+  "mood_description": "string",
+  "cover_prompt": "string",
+  "lastfm_tags": ["tag1", "tag2", "tag3", "tag4"]
+}}
+
+Journal: "{journal}"
+Genre: "{genre}"
+Era: "{era}"
 Track Count: {track_count}
-
-Fields:
-album_name, artist_name, year, label,
-mood_description, cover_prompt, tags
 """
 
     try:
-        response = client.models.generate_content(
-            model="gemini-2.0-flash",
-            contents=prompt
-        )
-
+        response = model.generate_content(prompt)
         return clean_json(response.text)
 
     except Exception as e:
