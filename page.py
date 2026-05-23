@@ -11,6 +11,8 @@ import webbrowser
 from PIL import ImageTk
 import threading
 from tkinter import filedialog
+import favoritesUtils
+
 
 
 if platform.system() == 'Darwin':  # macOS ise
@@ -220,6 +222,14 @@ def clear_tracks():
     for widget in tracks_container.winfo_children():
         widget.destroy()
 
+def toggle_favorite_ui(track, button):
+    is_now_favorite = favoritesUtils.toggle_favorite(track)
+
+    if is_now_favorite:
+        button.config(text="♥")
+    else:
+        button.config(text="♡")
+
 
 def display_tracks(tracks):
     clear_tracks()
@@ -251,6 +261,24 @@ def display_tracks(tracks):
             font=("Arial", 10)
         )
         artist_label.pack(anchor="w")
+
+        favorite_symbol = "♥" if favoritesUtils.is_favorite(track) else "♡"
+
+        favorite_button = Button(
+            row,
+            text="♥" if favoritesUtils.is_favorite(track) else "♡",
+            font=("Arial", 14),
+            bg="#181818",
+            fg="red",
+            borderwidth=0,
+            activebackground="#181818"
+        )
+
+        favorite_button.config(
+            command=lambda t=track, b=favorite_button: toggle_favorite_ui(t, b)
+        )
+
+        favorite_button.pack(side=RIGHT, padx=5)
 
         listen_button = Button(
             row,
@@ -356,7 +384,7 @@ def on_generate():
 
     current_journal = journal
     current_genre = genre
-    
+
     status_label.config(text="Gemini is thinking...")
     generate_button.config(state=DISABLED)
 
