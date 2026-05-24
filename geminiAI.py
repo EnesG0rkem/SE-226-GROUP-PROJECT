@@ -2,7 +2,7 @@ import google.generativeai as genai
 import json
 import re
 
-GEMINI_API_KEY = "AIzaSyAs5uU3AUltNOi7tsRvqWKcmwCiXsWgIUg"
+GEMINI_API_KEY = "AIzaSyDlLUSPgvjRl6JyNsgY_OXDtrLpWQXsdN8"
 
 genai.configure(api_key=GEMINI_API_KEY)
 
@@ -40,6 +40,11 @@ Journal: "{journal}"
 Genre: "{genre}"
 Era: "{era}"
 Track Count: {track_count}
+
+Deeply analyze the journal for song language.
+The provided genre must be relevant so the songs you give.
+Provided era must be satisfied by the song with maximun 5 years differance.
+Do not give unrelated output.
 """
 
     try:
