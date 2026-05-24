@@ -5,7 +5,6 @@ import Lastfm
 import Pollunation
 import historyUtils
 import trackUtils
-import genreStyles
 import saveUtils
 import webbrowser
 from PIL import ImageTk
@@ -100,7 +99,8 @@ count_frame.pack(side=LEFT, expand=True, fill='both')
 #region--- Genres 
 genre_label = Label(genre_frame, text="Genre", foreground = spotify_green)  #  3^01
 genre_label.pack(anchor='w')
-genres = ["Determine from text", "Pop", "Rock", "Jazz", "Classical", "Hip Hop", "Electronic"]  
+genres = ["Determine from text", "Pop", "Rock", "Jazz", "Classical", "Hip Hop", "Electronic",
+          "Rap", "Indie", "R&B", "Soul", "Metal", "Turkish Pop"]  
 opt_genre = StringVar(value="Determine from text")
 genre_box = OptionMenu(genre_frame, opt_genre, *genres)
 genre_box.pack(anchor='w')
@@ -109,8 +109,8 @@ genre_box.pack(anchor='w')
 #region--- Eras 
 era_label = Label(era_frame, text="Era", foreground = spotify_green)  #  3^01
 era_label.pack(anchor='n')
-eras = ["50's", "60's", "70's", "80's", "90's", "2000's", "2010's", "2020's"]
-opt_era = StringVar(value="2020's")
+eras = ["All time", "2020's", "2010's", "2000's", "90's", "80's", "70's",]
+opt_era = StringVar(value="All time")
 era_box = OptionMenu(era_frame, opt_era, *eras)
 era_box.pack(anchor='n')
 #endregion
@@ -179,10 +179,10 @@ tracklist_title = Label(
 tracklist_title.pack(anchor="w", padx=20, pady=(20, 10))
 
 tracks_frame_wrapper = Frame(right_panel, bg="#121212")
-tracks_frame_wrapper.pack(fill="both", expand=True, padx=20)
+tracks_frame_wrapper.pack(fill=BOTH, expand=True, padx=20)
 
 tracks_canvas = Canvas(tracks_frame_wrapper, bg="#121212", highlightthickness=0)
-tracks_canvas.pack(side=LEFT, fill="both", expand=True)
+tracks_canvas.pack(side=LEFT, fill=BOTH, expand=True)
 
 tracks_scrollbar = Scrollbar(
     tracks_frame_wrapper,
@@ -198,7 +198,13 @@ tracks_container.bind(
     lambda e: tracks_canvas.configure(scrollregion=tracks_canvas.bbox("all"))
 )
 
-tracks_canvas.create_window((0, 0), window=tracks_container, anchor="nw")
+tracks_canvas_window = tracks_canvas.create_window((0, 0), window=tracks_container, anchor="nw")
+
+def on_canvas_resize(event):
+    tracks_canvas.itemconfig(tracks_canvas_window, width=event.width)
+
+tracks_canvas.bind("<Configure>", on_canvas_resize)
+
 
 tracks_canvas.configure(yscrollcommand=tracks_scrollbar.set)
 
@@ -283,6 +289,7 @@ def display_tracks(tracks):
         listen_button = Button(
             row,
             text="Listen",
+            font="Ariel 15 bold",
             bg=spotify_green,
             activebackground=button_pressed,
             command=lambda t=track: open_track_url(t, current_journal, current_genre)
