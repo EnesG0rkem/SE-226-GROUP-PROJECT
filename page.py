@@ -338,7 +338,7 @@ def finish_generation(album_data, tracks, cover_image):
     # 1. Show cover image
     img_resized = cover_image.resize((250, 250))
     current_cover_image = ImageTk.PhotoImage(img_resized)
-    cover_label.config(text="")
+    cover_label.config(text="", image="")
     cover_label.config(image=current_cover_image)
         
     # 2. Show album metadata
@@ -442,7 +442,12 @@ def on_generate():
                 return
         
             main_page.after(0, lambda: status_label.config(text="Fetching tracks..."))
-            tracks = trackUtils.collect_tracks_from_tags(result["lastfm_tags"], track_count)
+            tracks = trackUtils.collect_tracks_from_tags(
+                result["lastfm_tags"],
+                track_count,
+                journal,
+                genre
+            )
         
             main_page.after(0, lambda: status_label.config(text="Generating cover..."))
             cover_image = Pollunation.generate_cover(result["cover_prompt"])

@@ -2,7 +2,7 @@ import Lastfm
 import historyUtils
 
 
-def collect_tracks_from_tags(tags, track_count):
+def collect_tracks_from_tags(tags, track_count, current_journal, current_genre):
     all_tracks = []
 
     for tag in tags:
@@ -18,16 +18,15 @@ def collect_tracks_from_tags(tags, track_count):
 
     for item in historyUtils.load_history():
 
-        if "track" in item:
-            track = item["track"]
-            if "name" in track and "artist" in track and "url" in track:
-                history_tracks.append({
-                    "name": track["name"],
-                    "artist": track["artist"],
-                    "url": track["url"]
-                })
+        same_genre = item.get("genre") == current_genre
 
-        elif "name" in item and "artist" in item and "url" in item:
+        mood_text = item.get("mood", "").lower()
+        current_mood = current_journal.lower()
+
+        mood_words = current_mood.split()
+        similar_mood = any(word in mood_text for word in mood_words)
+
+        if same_genre and similar_mood:
             history_tracks.append({
                 "name": item["name"],
                 "artist": item["artist"],
