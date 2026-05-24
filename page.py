@@ -338,11 +338,14 @@ def finish_generation(album_data, tracks, cover_image):
     # 1. Show cover image
     img_resized = cover_image.resize((250, 250))
     current_cover_image = ImageTk.PhotoImage(img_resized)
+    cover_label.config(text="")
     cover_label.config(image=current_cover_image)
         
     # 2. Show album metadata
     album_title_label.config(text=album_data["album_name"])
     artist_label_display.config(text=album_data["artist_name"])
+
+    tracklist_title.config(text="Generated Tracklist")
         
     # 3. Show tracklist
     display_tracks(tracks)
@@ -378,6 +381,40 @@ def save_album():
     )
 
     status_label.config(text="Album saved!")
+
+def show_favorites_album():
+
+    favorites = favoritesUtils.load_favorites()
+
+    clear_tracks()
+
+    # Change titles
+    tracklist_title.config(text="Favorites List")
+
+    album_title_label.config(
+        text="♥ Favorites Album"
+    )
+
+    artist_label_display.config(
+        text="Your liked songs"
+    )
+
+    # Show heart instead of AI cover
+    cover_label.config(
+        image="",
+        text="♥",
+        fg="red",
+        bg="#121212",
+        font=("Arial", 120, "bold")
+    )
+
+    if not favorites:
+        status_label.config(text="No favorite songs yet")
+        return
+
+    status_label.config(text="Showing favorites")
+
+    display_tracks(favorites)
         
 
 def on_generate():
@@ -431,6 +468,21 @@ save_button = Button(
 )
 
 save_button.pack(
+    padx=10,
+    pady=5,
+    fill='x'
+)
+
+favorites_button = Button(
+    left_panel,
+    text="Favorites Album",
+    font="Ariel 18 bold",
+    bg="#444444",
+    fg="white",
+    command=show_favorites_album
+)
+
+favorites_button.pack(
     padx=10,
     pady=5,
     fill='x'
