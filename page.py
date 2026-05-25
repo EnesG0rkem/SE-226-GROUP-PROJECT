@@ -29,13 +29,14 @@ def focus_out(event):
 #region Colors ----------------------------------------------------------------------
 spotify_green = "#1DB954"
 button_pressed = "#199845"
-background_color = "#1C1C1C"
+background_color = "#121212"
 input_area_color = "#363636"
 #endregion
 
 #region Main page ----------------------------------------------------------------------
 main_page = Tk()
-main_page.geometry("1050x700")
+main_page.geometry("1300x700")
+main_page.minsize(1300, 700)
 #r.attributes("-fullscreen", True)
 main_page.title('Moodify')
 main_page.focus_force()
@@ -46,27 +47,28 @@ main_frame.bind("<Button-1>", focus_out)
 #endregion
 
 #region Left panel ----------------------------------------------------------------------------------------
-left_panel = Frame(main_frame, bg = background_color)
+left_panel = Frame(main_frame, bg = "#1C1C1C")
 main_frame.add(left_panel)
+main_frame.paneconfig(left_panel, minsize=500)
 left_panel.bind("<Button-1>", focus_out)
 
 #region texts
 
-header = Label(left_panel, text="Moodify", font="Ariel 50 bold")  #  3^01
+header = Label(left_panel, text="Moodify", font="Ariel 50 bold", bg = "#1C1C1C")
 header.pack(padx=10,
             anchor='w')
 
 description = Label(left_panel,
                     text="Describe your mood and get personalized recomendations", 
                     font="Ariel 15 normal",
-                    fg="#7E7E7E")  #  3^01
+                    fg="#7E7E7E", bg = "#1C1C1C")
 description.pack(padx=10,
                  anchor='w')
 
 text_label = Label(left_panel,
                    text="Your mood (English or Turkish)",
                    font="Ariel 20 bold",
-                   foreground=spotify_green)  #  3^01
+                   foreground=spotify_green, bg = "#1C1C1C")
 
 text_label.pack(padx=10,
                 anchor='w')
@@ -82,22 +84,22 @@ input_area.pack(padx=10,
 #endregion
 
 #region option menus
-option_Menus = Frame(left_panel, bg = background_color)
+option_Menus = Frame(left_panel, bg = "#1C1C1C")
 option_Menus.pack(padx=10,
                   anchor='n',
                   fill='x')
 
-genre_frame = Frame(option_Menus, bg = background_color)
+genre_frame = Frame(option_Menus, bg = "#1C1C1C")
 genre_frame.pack(side=LEFT, expand=True, fill='both')
 
-era_frame = Frame(option_Menus, bg = background_color)
+era_frame = Frame(option_Menus, bg = "#1C1C1C")
 era_frame.pack(side=LEFT, expand=True, fill='both')
 
-count_frame = Frame(option_Menus, bg = background_color, highlightthickness=0)
+count_frame = Frame(option_Menus, bg = "#1C1C1C", highlightthickness=0)
 count_frame.pack(side=LEFT, expand=True, fill='both')
 
 #region--- Genres 
-genre_label = Label(genre_frame, text="Genre", foreground = spotify_green)  #  3^01
+genre_label = Label(genre_frame, text="Genre", foreground = spotify_green, bg = "#1C1C1C")  #  3^01
 genre_label.pack(anchor='w')
 genres = ["Determine from text", "Pop", "Rock", "Jazz", "Classical", "Hip Hop", "Electronic",
           "Rap", "Indie", "R&B", "Soul", "Metal", "Turkish Pop"]  
@@ -107,7 +109,7 @@ genre_box.pack(anchor='w')
 #endregion 
 
 #region--- Eras 
-era_label = Label(era_frame, text="Era", foreground = spotify_green)  #  3^01
+era_label = Label(era_frame, text="Era", foreground = spotify_green, bg = "#1C1C1C")  #  3^01
 era_label.pack(anchor='n')
 eras = ["All time", "2020's", "2010's", "2000's", "90's", "80's", "70's",]
 opt_era = StringVar(value="All time")
@@ -116,7 +118,7 @@ era_box.pack(anchor='n')
 #endregion
 
 #region--- Count 
-count_label = Label(count_frame, text="Track Count", foreground = spotify_green)
+count_label = Label(count_frame, text="Track Count", foreground = spotify_green, bg = "#1C1C1C")
 count_label.pack(anchor='e')
 count_box = Spinbox(count_frame, from_ = 6, to = 14, width= 7)
 count_box.pack(anchor='e')
@@ -143,10 +145,11 @@ generate_button.pack(padx=10,
 #region Right panel ----------------------------------------------------------------------------------------
 right_panel = Frame(main_frame)
 main_frame.add(right_panel)
-right_panel.config(bg="#121212")
+main_frame.paneconfig(right_panel, minsize=800)
+right_panel.config( bg = background_color)
 
 # Cover image label
-cover_label = Label(right_panel, bg="#121212")
+cover_label = Label(right_panel,  bg = background_color)
 cover_label.pack(pady=(20, 5))
 
 # Album name
@@ -155,7 +158,7 @@ album_title_label = Label(
     text="Album Name",
     font=("Arial", 16, "bold"),
     fg="white",
-    bg="#121212"
+     bg = background_color
 )
 album_title_label.pack()
 
@@ -165,7 +168,7 @@ artist_label_display = Label(
     text="Artist Name",
     font=("Arial", 12),
     fg="#B3B3B3",
-    bg="#121212"
+     bg = background_color
 )
 artist_label_display.pack()
 
@@ -174,7 +177,7 @@ tracklist_title = Label(
     text="Generated Tracklist",
     font=("Arial", 18, "bold"),
     fg="white",
-    bg="#121212"
+     bg = background_color
 )
 tracklist_title.pack(anchor="w", padx=20, pady=(20, 10))
 
