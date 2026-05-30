@@ -1,7 +1,6 @@
 import Lastfm
 import historyUtils
 
-
 def collect_tracks_from_tags(tags, track_count, current_journal, current_genre):
     all_tracks = []
 
@@ -27,11 +26,16 @@ def collect_tracks_from_tags(tags, track_count, current_journal, current_genre):
         similar_mood = any(word in mood_text for word in mood_words)
 
         if same_genre and similar_mood:
-            history_tracks.append({
-                "name": item["name"],
-                "artist": item["artist"],
-                "url": item["url"]
-            })
+            name = item.get("name", "")
+            artist = item.get("artist", "")
+            url = item.get("url", "")
+
+            if name and artist:
+                history_tracks.append({
+                    "name": name,
+                    "artist": artist,
+                    "url": url
+                })
 
     import random
     random.shuffle(history_tracks)
@@ -74,10 +78,20 @@ def normalize_lastfm_tracks(tracks):
     normalized = []
 
     for t in tracks:
+        track_info = t.get("track", t)
+
+        artist = track_info.get("artist", "")
+
+        if isinstance(artist, dict):
+            artist_name = artist.get("name", "")
+        else:
+            artist_name = artist
+
         normalized.append({
-            "name": t.get("name", ""),
-            "artist": t.get("artist", {}).get("name", ""),
-            "url": t.get("url", "")
+            "name": track_info.get("name", ""),
+            "artist": artist_name,
+            "url": track_info.get("url", "")
         })
 
     return normalized
+

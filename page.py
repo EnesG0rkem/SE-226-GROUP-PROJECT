@@ -1,7 +1,7 @@
 import platform
+import traceback
 from tkinter import *
 import geminiAI
-import Lastfm
 import Pollunation
 import historyUtils
 import trackUtils
@@ -11,7 +11,6 @@ from PIL import ImageTk
 import threading
 from tkinter import filedialog
 import favoritesUtils
-
 
 
 if platform.system() == 'Darwin':  # macOS ise
@@ -429,6 +428,10 @@ def on_generate():
     era = opt_era.get()
     track_count = int(count_box.get())
 
+    if not journal and genre == "Determine from text":
+        status_label.config(text="Please enter a mood or journal text.")
+        return
+
     current_journal = journal
     current_genre = genre
 
@@ -457,10 +460,12 @@ def on_generate():
         
             main_page.after(0, lambda: finish_generation(result, tracks, cover_image))
 
+
         except Exception as e:
-            print("Generation error:", e)
-            main_page.after(0, lambda: status_label.config(text="Something went wrong"))
-            main_page.after(0, lambda: generate_button.config(state=NORMAL))
+
+            print("Generation error:")
+
+            traceback.print_exc()
     
     threading.Thread(target=background_task, daemon=True).start()
 
