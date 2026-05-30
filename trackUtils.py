@@ -94,4 +94,3 @@ def normalize_lastfm_tracks(tracks):
         })
 
     return normalized
-

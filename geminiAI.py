@@ -55,3 +55,4 @@ Do not give unrelated output.
     except Exception as e:
         print("Gemini error:", e)
         return None
+

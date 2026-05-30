@@ -12,7 +12,6 @@ import threading
 from tkinter import filedialog
 import favoritesUtils
 
-
 if platform.system() == 'Darwin':  # macOS ise
     try:
         from tkmacosx import Button
