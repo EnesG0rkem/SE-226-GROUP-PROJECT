@@ -39,7 +39,7 @@ PANEL_SEPARATOR = "#5f5f5f"
 # endregion
 
 # region Window Configuration
-WINDOW_WIDTH = 1300
+WINDOW_WIDTH = 900
 WINDOW_HEIGHT = 700
 WINDOW_TITLE = 'Moodify'
 # endregion
@@ -61,8 +61,8 @@ LISTEN_BUTTON_FONT = ("Arial", 15, "bold")
 # endregion
 
 # region UI Dimensions
-LEFT_PANEL_MIN_SIZE = 500
-RIGHT_PANEL_MIN_SIZE = 800
+LEFT_PANEL_MIN_SIZE = 450
+RIGHT_PANEL_MIN_SIZE = 450
 COVER_IMAGE_SIZE = 250
 TRACK_COUNT_MIN = 6
 TRACK_COUNT_MAX = 14
@@ -203,6 +203,17 @@ favorites_button.pack(padx=10, pady=5, fill='x')
 
 status_label = Label(left_panel, text="", fg="white", bg=SIDEBAR_COLOR)
 status_label.pack()
+
+ai_disclaimer = Label(
+    left_panel,
+    text="Tracks are selected by AI, they may not fully satisfy the input, selected genre and selected era.",
+    font=("Arial", 9),
+    fg=SECONDARY_TEXT_LIGHTER,
+    bg=SIDEBAR_COLOR,
+    wraplength=380,
+    justify=CENTER
+)
+ai_disclaimer.pack(side=BOTTOM, fill='x', padx=10, pady=(10, 5))
 # endregion
 
 # region Right Panel - Main Setup
